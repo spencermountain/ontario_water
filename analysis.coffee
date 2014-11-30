@@ -98,6 +98,9 @@ pretty_print= (file)->
       console.log " " + k + " :  " + obj[k]  if obj[k]
 
 
+play= (file)->
+  run_sync("ffplay #{file} -autoexit -exitonkeydown -exitonmousedown -loop 2")
+
 #compare before + after video files
 diff = (input, output) ->
   before= metadata(input)
@@ -112,7 +115,8 @@ diff = (input, output) ->
 module.exports = {
   metadata:metadata,
   pretty_print:pretty_print,
-  diff:diff
+  diff:diff,
+  play:play,
 }
 
 # pretty_print("./assets/audio_master/dylanleslie_slow_jam.mp3")
