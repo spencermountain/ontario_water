@@ -5,7 +5,7 @@
 shell = require("shelljs")
 path= require("path")
 run_sync= require("./cmd")
-diff= require("./analysis").diff
+analysis= require("./analysis")
 
 
 
@@ -19,7 +19,7 @@ master= (input)->
   console.log "converting #{name} to mp4"
   cmd = """ffmpeg -i #{input} -y -vcodec libx264 -pix_fmt yuv420p -profile:v baseline -preset slower -crf 18 -vf "scale=trunc(in_w/2)*2:trunc(in_h/2)*2" #{output}"""
   run_sync(cmd)
-  diff(input, output)
+  analysis.diff(input, output)
   return output
 
 
@@ -32,14 +32,21 @@ strip_audio= (input)->
   console.log "stripping audio from #{name}.."
   cmd= "ffmpeg -i #{input} -y -vcodec copy -an #{output}"
   run_sync(cmd)
-  diff(input, output)
+  analysis.diff(input, output)
   return output
 
+add_meta= (file)->
+  input= path.join(__dirname, file)
+  output= path.join(__dirname, "META_#{file}")
+  cmd= """ffmpeg -i #{input} -y -metadata author="Spencer Kelly @spencermountain" -metadata year="2014" #{output}"""
+  run_sync(cmd)
+  analysis.pretty_print(output)
 
 module.exports= {
   strip_audio: strip_audio,
   master: master
 }
 
-console.log strip_audio("./shakey_spring.MOV")
-console.log master("./QUIET_shakey_spring.MOV")
+# console.log strip_audio("./shakey_spring.MOV")
+# console.log master("./QUIET_shakey_spring.MOV")
+# add_meta("shakey_spring.MOV")

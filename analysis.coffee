@@ -46,7 +46,8 @@ format_audio = (obj) ->
   return {
     type: obj.codec_name
     channels: obj.channel_layout + "(" + (obj.channels or 0) + ")"
-    created: date
+    created: date,
+    meta: JSON.stringify(obj.tags)
   }
 
 format_video = (obj) ->
@@ -58,6 +59,7 @@ format_video = (obj) ->
     type: obj.codec_name
     size: obj.width + "x" + obj.height
     created: date
+    meta:JSON.stringify(obj.tags)
   }
 
 
