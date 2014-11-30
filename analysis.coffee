@@ -76,6 +76,7 @@ metadata= (file)->
     name: name
     length: format_seconds(data.format.duration or 0)
     size: humanFileSize(data.format.size)
+    bytes: data.format.size
     tracks: "#{audio.length} audio, #{video.length} video"
     audio: format_audio(audio[0])
     video: format_video(video[0])
@@ -95,11 +96,23 @@ pretty_print= (file)->
       console.log " " + k + " :  " + obj[k]  if obj[k]
 
 
+#compare before + after video files
+diff = (input, output) ->
+  before= metadata(input)
+  after= metadata(output)
+  bytes= before.bytes - after.bytes
+  percent= parseInt( (after.bytes / before.bytes) * 100)
+  percent= 100 - percent
+  console.log("   -reduced by #{percent}%  (#{before.size} -> #{after.size})")
+
+
 
 module.exports = {
   metadata:metadata,
-  pretty_print:pretty_print
+  pretty_print:pretty_print,
+  diff:diff
 }
 
-pretty_print("./assets/audio/dylanleslie_slow_jam.mp3")
-pretty_print("./assets/video/norwood.MOV")
+# pretty_print("./assets/audio_master/dylanleslie_slow_jam.mp3")
+# pretty_print("./assets/video_master/norwood.MOV")
+# pretty_print("/Users/spencer/Desktop/tmp/holland_bridge.MOV")

@@ -9,4 +9,5 @@ run_sync = (cmd) ->
   else
     result.output
 
+
 module.exports= run_sync

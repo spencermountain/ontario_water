@@ -5,27 +5,38 @@
 shell = require("shelljs")
 path= require("path")
 run_sync= require("./cmd")
-
-assets= path.join(__dirname, 'assets')
-
-
-#create the build directory
-if !shell.test("-d", "#{assets}/built_files")
-  shell.mkdir("-p","#{assets}/built_files")
-
-videos = shell.ls("#{assets}/video/")
-audios = shell.ls("#{assets}/audio/")
-
-build_video= (file)->
-  cmd= "ffmpeg -i #{file} -q 5 -pix_fmt yuv420p -acodec libvorbis -vcodec libtheora output.ogv"
-
-  #webm
-  console.log "building webm"
-  cmd= """ffmpeg -i #{file} -c:v libvpx -c:a libvorbis -pix_fmt yuv420p -quality good -b:v 2M -crf 5 -vf "scale=trunc(in_w/2)*2:trunc(in_h/2)*2" output.webm"""
-
-
-# ffmpeg -i ./assets/video/norwood.MOV -q 5 -pix_fmt yuv420p -acodec libvorbis -vcodec libtheora output.ogv
-
+analysis= require("./analysis")
 
 # timelapse
 # ffmpeg -r 30 -i img%03d.png -c:v libx264 -r 30 -pix_fmt yuv420p out.mp4
+
+assets= path.join(__dirname, 'assets')
+videos = shell.ls("#{assets}/video_master/")
+audios = shell.ls("#{assets}/audio_master/")
+
+
+resolution= (h=0)->
+  w= parseInt(h * (16/9))
+  return "#{w}:#{h}"
+
+resize_video= (file, h)->
+  input= path.join(assets, '/video_master/', file)
+  name= path.basename(input)
+  ext= path.extname(name)
+  output= path.join(assets, "/builds", "#{path.basename(input, ext)}.mp4")
+  console.log "resizing #{name} to #{resolution(h)}"
+  cmd = """ffmpeg -i #{input} -y -vf scale=#{resolution(h)} #{output}"""
+  run_sync(cmd)
+  console.log analysis.metadata(input)
+  console.log analysis.metadata(output)
+  analysis.diff(input, output)
+  return output
+
+# 16 x 9 resolutions
+# 864 x 486
+# 1280 x 720
+
+console.log resize_video(videos[0], 486)
+# console.log resolution(486)
+
+
