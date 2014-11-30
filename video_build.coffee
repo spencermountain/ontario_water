@@ -35,7 +35,7 @@ webm= (file, h)->
   h= be_even(h)
   obj= reconcile_paths(file, "#{h}", "webm")
   size= resolution(h)
-  console.log " ---Webm #{size} ---"
+  console.log " ---Webm #{h} ---"
   run_sync("ffmpeg -i #{obj.input} -y -c:v libvpx -c:a libvorbis -pix_fmt yuv420p -quality good -b:v 2M -crf 5 -vf 'scale=#{size}' #{obj.output}")
   analysis.diff(obj.input, obj.output)
   return obj.output
@@ -44,7 +44,7 @@ mp4= (file, h)->
   h= be_even(h)
   obj= reconcile_paths(file, "#{h}", "mp4")
   size= resolution(h)
-  console.log " ---mp4 #{size} ---"
+  console.log " ---mp4 #{h} ---"
   run_sync("ffmpeg -i #{obj.input} -y -vcodec libx264 -pix_fmt yuv420p -profile:v baseline -preset slower -crf 18 -vf scale=#{size} #{obj.output}")
   analysis.diff(obj.input, obj.output)
   return obj.output
@@ -62,34 +62,36 @@ thumbnail= (file, h)->
 
 #remove old videos+audio
 rm_builds= ->
-  videos = shell.ls("#{assets}/builds/")
-  console.log("clearing #{videos.length} builds")
-  videos.forEach (v)->
+  builds = shell.ls("#{assets}/builds/")
+  builds.forEach (v)->
     v= "#{assets}/builds/#{v}"
     shell.rm(v)
 
+#all sizes & thumnails for a given video
 rebuild= (file)->
-  # sizes= [258, 480]
-  sizes= [100]
+  # sizes= [100]
+  sizes= [258, 480, 720]
   sizes.forEach (h)->
     webm(file, h)
     mp4(file, h)
     thumbnail(file, h)
 
+#rebuild all videos in ./assets/video_master
 build_all= ()->
   videos = shell.ls("#{assets}/video_master/")
+  rm_builds()
   videos.forEach (f)->
     console.log "===#{f}==="
     rebuild(f)
 
 
 # videos = shell.ls("#{assets}/video_master/")
-# rm_builds()
+#
 # analysis.play resize_video(videos[0], 86)
 # analysis.play webm(videos[0], 287)
 # thumbnail(videos[0], 487)
 # rebuild(videos[0])
-# build_all()
+build_all()
 
 
 # console.log reconcile_paths("shakey_spring.mp4", "OLD")
