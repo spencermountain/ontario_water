@@ -6,7 +6,7 @@ arr = ["./libs/jquery.js", "./libs/sugar.js", "./libs/oj.js", "./libs/easings.js
 head.js.apply(this, arr);
 
 head(function() {
-  var render_audio, render_video;
+  var determine_video, render_audio, render_video;
   oj.useGlobally();
   render_video = function(name, size) {
     if (size == null) {
@@ -20,10 +20,12 @@ head(function() {
       loop: false
     }, function() {
       source({
-        src: "" + name + ".mp4"
+        src: "" + name + ".mp4",
+        type: "video/mp4"
       });
       source({
-        src: "" + name + ".webm"
+        src: "" + name + ".webm",
+        type: "video/webm"
       });
       return p(function() {
         return "video unsupported on your browser";
@@ -35,27 +37,44 @@ head(function() {
     return audio({
       controls: false,
       autoplay: false,
-      loop: false
+      loop: false,
+      preload: "none"
     }, function() {
       source({
-        src: "" + name + ".mp3"
+        src: "" + name + ".mp3",
+        type: "audio/mpeg"
       });
-      source({
-        src: "" + name + ".ogg"
-      });
-      return p(function() {
-        return "audio unsupported on your browser";
+      return source({
+        src: "" + name + ".ogg",
+        type: "audio/ogg"
       });
     });
   };
+  determine_video = function() {
+    var s, s_width, sizes, w, _i, _len;
+    w = window.innerWidth;
+    console.log(w);
+    sizes = [258, 480, 720];
+    for (_i = 0, _len = sizes.length; _i < _len; _i++) {
+      s = sizes[_i];
+      s_width = parseInt(s * (16 / 9));
+      if (w <= s_width) {
+        return s;
+      }
+    }
+    return sizes[sizes.length - 1];
+  };
   return $("#main").oj(div(function() {
+    var size;
     h2({
       style: "color:grey; font-size:28px; padding:0px; margin:0px;"
     }, function() {
       return "hi der!";
     });
     render_audio("dylanleslie_slow_jam");
-    return render_video("shakey_spring", 480);
+    size = determine_video();
+    console.log(size);
+    return render_video("shakey_spring", size);
   }));
 });
 
