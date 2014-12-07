@@ -6,53 +6,69 @@ arr = ["./libs/jquery.js", "./libs/sugar.js", "./libs/oj.js", "./libs/easings.js
 head.js.apply(this, arr);
 
 head(function() {
-  var CURRENT_STAGE, determine_stage;
+  var CHEAT_AMOUNT, CURRENT_STAGE, change_stage, scrollHandler, which_stage, y;
   oj.useGlobally();
+  CHEAT_AMOUNT = parseInt(window.innerHeight * 0.33);
   CURRENT_STAGE = null;
-  determine_stage = function() {
-    var found, i, s, _i, _len, _results;
-    found = false;
-    _results = [];
-    for (i = _i = 0, _len = stages.length; _i < _len; i = ++_i) {
-      s = stages[i];
-      if (found === false && s.visibleY && s.visibleY !== "bottom") {
-        CURRENT_STAGE = i;
-        s.play();
-        _results.push(found = true);
-      } else if (s.visibleY && s.state !== "ready") {
-        _results.push(s.stop());
-      } else {
-        _results.push(void 0);
-      }
-    }
-    return _results;
-  };
-  return $("#main").oj(div(function() {
-    h2({
-      style: "color:grey; font-size:28px; padding:0px; margin:0px; height:700px; "
-    }, function() {
-      return "hi der!";
-    });
+  y = 0;
+  $("#main").oj(div(function() {
     return stages.map(function(stage, i) {
       return div({
         "class": "stage",
-        style: "height:650px; width:100%; border:1px solid grey; font-size:68px;",
+        style: "height:" + stage.height + "px; width:100%; border:1px solid grey; font-size:68px;",
         insert: function() {
-          stage.el = $(this);
-          return stage.render();
-        },
-        bind: {
-          inview: function(event, isInView, visiblePartX, visibleY) {
-            stage.visibleY = visibleY;
-            determine_stage();
-            return console.log(CURRENT_STAGE);
-          }
+          return stage.el = $(this);
         }
       }, function() {
         return i;
       });
     });
   }));
+  which_stage = function() {
+    var bottom, real_estate, top;
+    top = parseInt(window.pageYOffset);
+    bottom = parseInt(top + window.innerHeight);
+    real_estate = stages.map(function(s, i) {
+      if (s.top >= top && s.bottom <= bottom) {
+        s.visibility = parseInt(s.bottom - s.top) || 0;
+      } else if (s.top < top && s.bottom > top) {
+        s.visibility = parseInt(s.bottom - top) || 0;
+      } else if (s.top < bottom && s.bottom > bottom) {
+        s.visibility = parseInt(bottom - s.top) || 0;
+      } else {
+        s.visibility = 0;
+      }
+      return s;
+    });
+    return real_estate.sort(function(a, b) {
+      return (b.visibility - a.visibility) || 0;
+    })[0].i || 0;
+  };
+  change_stage = function(i) {
+    var s, _i, _len;
+    if (i !== CURRENT_STAGE) {
+      CURRENT_STAGE = i;
+      console.log("changing to " + i);
+      for (_i = 0, _len = stages.length; _i < _len; _i++) {
+        s = stages[_i];
+        if (s.state === "playing" && s.i !== i) {
+          s.stop();
+        }
+      }
+    }
+    return stages[i].play();
+  };
+  scrollHandler = function() {
+    var i;
+    i = which_stage();
+    if (i !== CURRENT_STAGE) {
+      return change_stage(i);
+    }
+  };
+  $(window).on('scroll', function() {
+    return window.requestAnimationFrame(scrollHandler);
+  });
+  return change_stage(which_stage());
 });
 
 //# sourceMappingURL=index.js.map
