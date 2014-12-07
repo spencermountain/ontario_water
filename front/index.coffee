@@ -4,55 +4,45 @@ arr= [
   "./libs/oj.js",
   "./libs/easings.js",
   "./libs/dirty.js",
+  "./libs/inview.js",
+  "./coffeejs/stages.js"
 ]
 head.js.apply(this, arr);
 
 head ->
   oj.useGlobally();
 
-  render_video=(name, size=720)->
-    name= "../assets/builds/#{name}#{size}"
-    video {
-      poster:"#{name}.png",
-      controls:false,
-      autoplay:true,
-      loop:false
-    },->
-      source {src:"#{name}.mp4", type:"video/mp4"}
-      source {src:"#{name}.webm", type:"video/webm"}
-      p -> "video unsupported on your browser"
+  CURRENT_STAGE= null
+  determine_stage= ->
+    #set the first visible one to play, and stop all preceding
+    found= false
+    for s,i in stages
+      if found==false && s.visibleY && s.visibleY!="bottom"
+        CURRENT_STAGE= i
+        s.play()
+        found= true
+      else if s.visibleY && s.state!="ready"
+        s.stop()
 
-
-  render_audio=(name)->
-    name= "../assets/builds/#{name}"
-    audio {
-      controls:false,
-      autoplay:false,
-      loop:false,
-      preload:"none", #auto
-    },->
-      source {src:"#{name}.mp3", type:"audio/mpeg" }
-      source {src:"#{name}.ogg", type:"audio/ogg"}
-
-
-  determine_video=->
-    w= window.innerWidth
-    console.log w
-    sizes= [258, 480, 720]
-    for s in sizes
-      s_width= parseInt(s*(16/9)) #calculate corollary
-      if w <= s_width
-        return s
-    return sizes[sizes.length-1]
 
   $("#main").oj(
     div ->
-      h2 {style:"color:grey; font-size:28px; padding:0px; margin:0px;"},->
+      h2 {style:"color:grey; font-size:28px; padding:0px; margin:0px; height:1200px; "},->
         "hi der!"
-      render_audio("dylanleslie_slow_jam")
-      size= determine_video()
-      console.log size
-      render_video("shakey_spring", size)
+      stages.map (stage, i)->
+        div {
+          class:"stage"
+          style:"height:650px; width:100%; border:1px solid grey; font-size:68px;"
+          insert:->
+            stage.el= $(this)
+            stage.render()
+          bind:
+            inview: (event, isInView, visiblePartX, visibleY)->
+              stage.visibleY= visibleY
+              determine_stage()
+              console.log CURRENT_STAGE
+        },->
+          i
   )
 
 
