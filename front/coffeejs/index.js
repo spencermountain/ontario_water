@@ -12,12 +12,14 @@ head(function() {
   CURRENT_STAGE = null;
   y = 0;
   $("#main").oj(div(function() {
-    return stages.map(function(stage, i) {
+    return stages.map(function(s, i) {
       return div({
         "class": "stage",
-        style: "height:" + stage.height + "px; width:100%; border:1px solid grey; font-size:68px;",
+        style: "height:" + s.height + "px; overflow:hidden; width:100%; border:1px solid grey; font-size:68px;",
         insert: function() {
-          return stage.el = $(this);
+          s.el = $(this);
+          s.preload();
+          return s;
         }
       }, function() {
         return i;

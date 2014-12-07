@@ -41,7 +41,7 @@ rm_builds= ->
 #rebuild all images in ./assets/image_master
 build_all= ()->
   videos = shell.ls("#{assets}/image_master/")
-  rm_builds()
+  # rm_builds()
   sizes= [1280, 853, 458]
   videos.forEach (f)->
     console.log "===#{f}==="

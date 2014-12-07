@@ -72,6 +72,9 @@ humanFileSize = function(bytes, si) {
 
 format_audio = function(obj) {
   var date;
+  if (obj == null) {
+    obj = {};
+  }
   if (!obj) {
     return undefined;
   }
@@ -90,9 +93,13 @@ format_audio = function(obj) {
 
 format_video = function(obj) {
   var date;
+  if (obj == null) {
+    obj = {};
+  }
   if (!obj) {
     return undefined;
   }
+  obj.tags = obj.tags || {};
   date = void 0;
   if (obj.tags.creation_time) {
     date = timeSince(new Date(obj.tags.creation_time));

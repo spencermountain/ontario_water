@@ -16,17 +16,21 @@ head ->
   CURRENT_STAGE= null
   y= 0
 
+
   $("#main").oj(
     div ->
-      stages.map (stage, i)->
+      stages.map (s, i)->
         div {
           class:"stage"
-          style:"height:#{stage.height}px; width:100%; border:1px solid grey; font-size:68px;"
+          style:"height:#{s.height}px; overflow:hidden; width:100%; border:1px solid grey; font-size:68px;"
           insert:->
-            stage.el= $(this)
+            s.el= $(this)
+            s.preload()
+            s
         },->
           i
   )
+
 
   which_stage=->
     top= parseInt(window.pageYOffset) #+ CHEAT_AMOUNT

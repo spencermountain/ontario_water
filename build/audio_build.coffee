@@ -15,7 +15,7 @@ reconcile_paths= (file="", flag="", ext="mp3")->
   obj.input= path.join(assets, '/audio_master/', file)
   obj.name= path.basename(obj.input)
   old_ext= path.extname(obj.name)
-  obj.output= path.join(assets, "/builds", "#{path.basename(obj.input, old_ext)}#{flag}.#{ext}")
+  obj.output= path.join(assets, "/derivative", "#{path.basename(obj.input, old_ext)}#{flag}.#{ext}")
   return obj
 
 

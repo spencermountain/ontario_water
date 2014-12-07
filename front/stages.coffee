@@ -1,4 +1,4 @@
-DEFAULT_HEIGHT= 500
+DEFAULT_HEIGHT= 600
 
 ASSET_WIDTH= ->
   w= window.innerWidth
@@ -9,6 +9,7 @@ ASSET_WIDTH= ->
 
 class Stage
   constructor: (@data={}) ->
+    the= this
     # waiting, loading, ready, playing, stopped/done
     @state= "waiting"
     @el= null
@@ -16,22 +17,21 @@ class Stage
     @height= @data.height || DEFAULT_HEIGHT
 
     #preload automatically calls render
-    @preload=(callback)->
-      @state= "loading"
-      @render()
-      callback()
+    @preload=()->
+      the.state= "loading"
+      the.state= "loading #{the.i}"
 
     @render=->
-      @state= "ready"
-      @el.oj("#{@i} ready")
+      the.state= "ready"
+      console.log "ready #{the.i}"
 
     @play=->
-      @state= "playing"
-      @el.oj("playing #{@i}")
+      the.state= "playing"
+      console.log "playing #{the.i}"
 
     @stop=->
-      @state= "stopped"
-      @el.oj("- #{@i} -")
+      the.state= "stopped"
+      console.log "stopped #{the.i}"
 
 
 class VideoStage extends Stage
@@ -39,19 +39,69 @@ class VideoStage extends Stage
     the= this
     super(@data)
 
+    @preload=->
+      the.render()
+
+    @render=->
+      the.state= "ready"
+      src= the.data.src.replace(/\..*?/,'')
+      the.src= "../assets/derivative/#{src}_#{ASSET_WIDTH()}"
+      console.log the
+      the.el.oj(
+        div {
+          style:"position:relative; left:0px; top:0px;"
+          },->
+            video {
+              style:"left:0px; top:0px;"
+              poster:"#{the.src}.png",
+              controls:false,
+              autoplay:true,
+              loop:true,
+              insert:->
+                the.video= $(this)[0]
+              click:->
+                # console.log($(this))
+                if(the.video.paused)
+                  the.video.play()
+                else
+                  the.video.pause()
+            },->
+              source {src:"#{the.src}.mp4", type:"video/mp4"}
+              source {src:"#{the.src}.webm", type:"video/webm"}
+              p -> "video unsupported on your browser"
+      )
+
 
 class ImageStage extends Stage
   constructor: (@data={}) ->
     the= this
     super(@data)
 
-    @preload=(callback=->)->
-      src= @data.src.replace(/\..*?/,'')
-      src= "../assets/derivative/#{src}_#{ASSET_WIDTH()}.jpg"
+    @preload=()->
+      the.state= "loading"
+      src= the.data.src.replace(/\..*?/,'')
+      the.src= "../assets/derivative/#{src}_#{ASSET_WIDTH()}.jpg"
       img= new Image()
-      img.src= src
-      img.onload= callback
+      img.src= the.src
+      img.onload= ->
+        the.render()
       return img
+
+    @render=->
+      the.state= "ready"
+      the.el.oj(
+        div {
+          style:"position:relative; left:0px; top:0px;"
+          },->
+            img {
+              style:"position:absolute; left:0px; top:0px; width:100%;"
+              src:the.src
+            }
+            div {
+              style:"position:absolute; z-index:3; right:10px; top:250px; font-size:30px; color:grey;"
+            },->
+              the.data.title
+      )
 
 
 
@@ -65,17 +115,27 @@ types= {
 stages= [
   {
     type:"image",
-    src:"toronto_aerial"
-  },
-  {
-    type:"",
+    src:"toronto_aerial",
+    title:"The Rise and Rise of Toronto",
+    height:400
   },
   {
     type:"image",
     src:"shangri_la_toronto"
+    height:900
   },
+  {
+    type:"video",
+    src:"expo_montage"
+  },
+  {
+    type:"video",
+    src:"big_o_collapse"
+    height:900
+  },
+  # {},
+  # {},
 ]
-
 
 offset= 0
 stages= stages.map (s,i)->
@@ -86,9 +146,3 @@ stages= stages.map (s,i)->
   s.i= i
   offset += s.height || DEFAULT_HEIGHT
   s
-
-window.stages= stages
-console.log stages
-
-
-

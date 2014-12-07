@@ -38,7 +38,7 @@ humanFileSize = (bytes=0, si) ->
     break unless bytes >= thresh
   bytes.toFixed(1) + " " + units[u]
 
-format_audio = (obj) ->
+format_audio = (obj={}) ->
   return `undefined`  unless obj
   obj.tags = obj.tags or {}
   date = undefined
@@ -50,8 +50,9 @@ format_audio = (obj) ->
     meta: JSON.stringify(obj.tags)
   }
 
-format_video = (obj) ->
+format_video = (obj={}) ->
   return `undefined`  unless obj
+  obj.tags = obj.tags or {}
   date = undefined
   if obj.tags.creation_time
     date = timeSince(new Date(obj.tags.creation_time))
