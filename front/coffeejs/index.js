@@ -29,7 +29,7 @@ head(function() {
   };
   return $("#main").oj(div(function() {
     h2({
-      style: "color:grey; font-size:28px; padding:0px; margin:0px; height:1200px; "
+      style: "color:grey; font-size:28px; padding:0px; margin:0px; height:700px; "
     }, function() {
       return "hi der!";
     });

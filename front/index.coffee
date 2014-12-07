@@ -27,7 +27,7 @@ head ->
 
   $("#main").oj(
     div ->
-      h2 {style:"color:grey; font-size:28px; padding:0px; margin:0px; height:1200px; "},->
+      h2 {style:"color:grey; font-size:28px; padding:0px; margin:0px; height:700px; "},->
         "hi der!"
       stages.map (stage, i)->
         div {
