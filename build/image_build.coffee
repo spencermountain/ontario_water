@@ -31,7 +31,23 @@ resize= (file, w)->
   run_sync(cmd)
   return obj
 
-resize("shangri_la_toronto.jpg", 400)
-resize("shangri_la_toronto.jpg", 700)
-resize("shangri_la_toronto.jpg", 900)
-resize("shangri_la_toronto.jpg", 4900)
+#remove old videos+audio
+rm_builds= ->
+  builds = shell.ls("#{assets}/derivative/")
+  builds.forEach (v)->
+    v= "#{assets}/derivative/#{v}"
+    shell.rm(v)
+
+#rebuild all images in ./assets/image_master
+build_all= ()->
+  videos = shell.ls("#{assets}/image_master/")
+  rm_builds()
+  sizes= [1280, 853, 458]
+  videos.forEach (f)->
+    console.log "===#{f}==="
+    sizes.forEach (s)->
+      resize(f, s)
+
+
+# resize("shangri_la_toronto.jpg", 400)
+build_all()
